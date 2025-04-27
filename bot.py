@@ -14,16 +14,20 @@ localizations = {
         "start_message": "Choose an active currency pair",
         "choose_currency_pair": "Choose current pair",
         "choose_currency_pair_otc": "Choose current pair (OTC)",
+        "choose_currency_pair_binarium": "Binarium - Active",
         "current_pairs": "Current currency pairs:",
         "current_pairs_otc": "Current currency pairs (OTC):",
+        "current_pairs_binarium": "Binarium active pairs:",
         "select_currency_pair": "Select a currency pair",
     },
     "ru": {
         "start_message": "Выберите актуальную валютную пару",
         "choose_currency_pair": "Выбрать валютную пару",
         "choose_currency_pair_otc": "Выбрать валютную пару (OTC)",
+        "choose_currency_pair_binarium": "Binarium - Активные",
         "current_pairs": "Актуальные валютные пары:",
         "current_pairs_otc": "Актуальные валютные пары (OTC):",
+        "current_pairs_binarium": "Актуальные Binarium пары:",
         "select_currency_pair": "Выберите валютную пару",
     }
 }
@@ -39,36 +43,40 @@ async def send_welcome(message: types.Message):
     markup = InlineKeyboardMarkup(row_width=1)
     markup.add(
         InlineKeyboardButton(get_message(language_code, "choose_currency_pair"), callback_data="choose_currency_pair"),
-        InlineKeyboardButton(get_message(language_code, "choose_currency_pair_otc"), callback_data="choose_currency_pair_otc")
+        InlineKeyboardButton(get_message(language_code, "choose_currency_pair_otc"), callback_data="choose_currency_pair_otc"),
+        InlineKeyboardButton(get_message(language_code, "choose_currency_pair_binarium"), callback_data="choose_currency_pair_binarium")
     )
     await bot.send_message(message.chat.id, get_message(language_code, "start_message"), reply_markup=markup)
 
-# Обработчик нажатия кнопки "Выбрать валютную пару"
-@dp.callback_query_handler(lambda c: c.data in ["choose_currency_pair", "choose_currency_pair_otc"])
+# Обработчик выбора типа валютной пары
+@dp.callback_query_handler(lambda c: c.data in ["choose_currency_pair", "choose_currency_pair_otc", "choose_currency_pair_binarium"])
 async def choose_currency_pair(callback_query: types.CallbackQuery):
     language_code = callback_query.from_user.language_code
-    is_otc = callback_query.data == "choose_currency_pair_otc"
-    
-    currencies = [
-        "CHF/JPY", "AUD/NZD", "EUR/USD", "EUR/JPY",
-        "AUD/CAD", "AUD/JPY", "GBP/NZD", "USD/CAD"
-    ] if not is_otc else [
-        "EUR/USD (OTC)", "NZD/JPY (OTC)", "GBP/JPY (OTC)",
-        "AUD/JPY (OTC)", "EUR/JPY (OTC)", "CHF/JPY (OTC)"
-    ]
-    
+    data = callback_query.data
+
+    # Определяем список валютных пар в зависимости от выбора пользователя
+    if data == "choose_currency_pair":
+        currencies = ["CHF/JPY", "AUD/NZD", "EUR/USD", "EUR/JPY", "AUD/CAD", "AUD/JPY", "GBP/NZD", "USD/CAD"]
+        message_key = "current_pairs"
+    elif data == "choose_currency_pair_otc":
+        currencies = ["EUR/USD (OTC)", "NZD/JPY (OTC)", "GBP/JPY (OTC)", "AUD/JPY (OTC)", "EUR/JPY (OTC)", "CHF/JPY (OTC)"]
+        message_key = "current_pairs_otc"
+    else:  # choose_currency_pair_binarium
+        currencies = ["BIN IDX", "LATAM", "ASIA", "IMX", "PMX"]
+        message_key = "current_pairs_binarium"
+
     markup = InlineKeyboardMarkup(row_width=2)
     for currency in currencies:
         markup.add(InlineKeyboardButton(currency, callback_data=f"currency_{currency}"))
-    
+
     await bot.edit_message_text(
-        get_message(language_code, "current_pairs_otc" if is_otc else "current_pairs"),
+        get_message(language_code, message_key),
         callback_query.message.chat.id,
         callback_query.message.message_id,
         reply_markup=markup
     )
 
-# Обработчик выбора валютной пары
+# Обработчик выбора конкретной валютной пары
 @dp.callback_query_handler(lambda c: c.data.startswith("currency_"))
 async def show_random_arrow(callback_query: types.CallbackQuery):
     currency = callback_query.data.split("_", 1)[1]
@@ -76,15 +84,16 @@ async def show_random_arrow(callback_query: types.CallbackQuery):
     arrow = random.choice(["⬆️", "⬇️"])
     
     await bot.send_message(callback_query.message.chat.id, f"{currency}: {arrow}")
-    
+
+    # Возвращаем кнопки выбора валютных пар
     markup = InlineKeyboardMarkup(row_width=1)
     markup.add(
         InlineKeyboardButton(get_message(language_code, "choose_currency_pair"), callback_data="choose_currency_pair"),
-        InlineKeyboardButton(get_message(language_code, "choose_currency_pair_otc"), callback_data="choose_currency_pair_otc")
+        InlineKeyboardButton(get_message(language_code, "choose_currency_pair_otc"), callback_data="choose_currency_pair_otc"),
+        InlineKeyboardButton(get_message(language_code, "choose_currency_pair_binarium"), callback_data="choose_currency_pair_binarium")
     )
-    
+
     await bot.send_message(callback_query.message.chat.id, get_message(language_code, "select_currency_pair"), reply_markup=markup)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
-
