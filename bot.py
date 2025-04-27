@@ -73,7 +73,7 @@ async def choose_currency_pair(callback_query: types.CallbackQuery):
 async def show_random_arrow(callback_query: types.CallbackQuery):
     currency = callback_query.data.split("_", 1)[1]
     language_code = callback_query.from_user.language_code
-    arrow = random.choice(["⬆️", "⬇️"])
+    arrow = random.choice(["UP", "DOWN"])
     
     await bot.send_message(callback_query.message.chat.id, f"{currency}: {arrow}")
 
