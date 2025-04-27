@@ -14,20 +14,16 @@ localizations = {
         "start_message": "Choose an active currency pair",
         "choose_currency_pair": "Choose current pair",
         "choose_currency_pair_otc": "Choose current pair (OTC)",
-        "choose_currency_pair_binarium": "Binarium - Active",
         "current_pairs": "Current currency pairs:",
         "current_pairs_otc": "Current currency pairs (OTC):",
-        "current_pairs_binarium": "Binarium active pairs:",
         "select_currency_pair": "Select a currency pair",
     },
     "ru": {
-        "start_message": "Выберите актуальную валютную пару",
+        "start_message": "Начать торговлю",
         "choose_currency_pair": "Выбрать валютную пару",
         "choose_currency_pair_otc": "Выбрать валютную пару (OTC)",
-        "choose_currency_pair_binarium": "Binarium - Активные",
         "current_pairs": "Актуальные валютные пары:",
         "current_pairs_otc": "Актуальные валютные пары (OTC):",
-        "current_pairs_binarium": "Актуальные Binarium пары:",
         "select_currency_pair": "Выберите валютную пару",
     }
 }
